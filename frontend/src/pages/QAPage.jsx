@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import { Search, ChevronRight, FileText, Loader2 } from 'lucide-react';
 
 const QAPage = () => {
@@ -13,7 +13,7 @@ const QAPage = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/ask', { question });
+      const response = await api.post('/ask', { question });
       setResult(response.data);
     } catch (error) {
       console.error('Failed to get answer', error);

@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.api import endpoints
-import os
 
 app = FastAPI(title="Document QA and Risk System", version="1.0.0")
 
@@ -14,9 +13,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Create uploads directory if it doesn't exist
-os.makedirs("uploads", exist_ok=True)
 
 # Include routers
 app.include_router(endpoints.router)

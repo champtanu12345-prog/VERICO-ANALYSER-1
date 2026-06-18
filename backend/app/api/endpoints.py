@@ -4,6 +4,8 @@ from typing import List, Optional
 import os
 import uuid
 import shutil
+import tempfile
+from pathlib import Path
 
 from app.services.pdf_parser import PDFParser
 from app.services.chunker import Chunker
@@ -13,17 +15,26 @@ from app.services.risk_detector import RiskDetector
 
 router = APIRouter()
 
-UPLOAD_DIR = "uploads"
+BASE_DIR = Path(__file__).resolve().parents[2]
+RUNTIME_DIR = (
+    Path(tempfile.gettempdir()) / "verico"
+    if os.getenv("VERCEL")
+    else BASE_DIR
+)
+UPLOAD_DIR = RUNTIME_DIR / "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Global instances (simplified for this assignment, in production use dependency injection)
-vector_store = VectorStore(index_path="faiss_index.bin", meta_path="faiss_meta.pkl")
+vector_store = VectorStore(
+    index_path=str(RUNTIME_DIR / "faiss_index.bin"),
+    meta_path=str(RUNTIME_DIR / "faiss_meta.pkl"),
+)
 chunker = Chunker()
 qa_engine = QAEngine(use_qa_model=False)
 risk_detector = RiskDetector(
-    rules_path="risk_rules.yaml",
-    model_path="risk_model.keras",
-    labels_path="risk_labels.json",
+    rules_path=str(BASE_DIR / "risk_rules.yaml"),
+    model_path=str(BASE_DIR / "risk_model.keras"),
+    labels_path=str(BASE_DIR / "risk_labels.json"),
 )
 
 # In-memory storage for simplicity (use DB in production)
@@ -86,7 +97,7 @@ async def upload_documents(background_tasks: BackgroundTasks, files: List[Upload
     
     for file in files:
         document_id = str(uuid.uuid4())
-        filepath = os.path.join(UPLOAD_DIR, f"{document_id}_{file.filename}")
+        filepath = UPLOAD_DIR / f"{document_id}_{file.filename}"
         
         with open(filepath, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
@@ -142,7 +153,7 @@ async def reset_system():
     
     # clear uploads directory
     for filename in os.listdir(UPLOAD_DIR):
-        file_path = os.path.join(UPLOAD_DIR, filename)
+        file_path = UPLOAD_DIR / filename
         try:
             if os.path.isfile(file_path):
                 os.unlink(file_path)

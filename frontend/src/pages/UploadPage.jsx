@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 
 const UploadPage = () => {
@@ -21,7 +21,7 @@ const UploadPage = () => {
     });
 
     try {
-      const response = await axios.post('http://localhost:8000/upload', formData, {
+      const response = await api.post('/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

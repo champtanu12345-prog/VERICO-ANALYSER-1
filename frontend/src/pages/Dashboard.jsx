@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { AlertTriangle, ShieldCheck, Activity } from 'lucide-react';
 
@@ -10,7 +10,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchRisks = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/risks');
+        const response = await api.get('/risks');
         setRisks(response.data);
       } catch (error) {
         console.error('Failed to fetch risks', error);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShieldAlert, FileText, Activity, Search, RefreshCw } from 'lucide-react';
-import axios from 'axios';
+import api from '../lib/api';
 
 const Navbar = () => {
   const location = useLocation();
@@ -14,7 +14,7 @@ const Navbar = () => {
 
   const handleReset = async () => {
     try {
-        await axios.post('http://localhost:8000/reset');
+        await api.post('/reset');
         window.location.reload();
     } catch (error) {
         console.error('Error resetting system:', error);

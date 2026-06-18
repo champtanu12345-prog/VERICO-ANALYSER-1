@@ -1,0 +1,39 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "experimentalServices": {
+    "frontend": {
+      "entrypoint": "frontend",
+      "routePrefix": "/",
+      "framework": "vite"
+    },
+    "backend": {
+      "entrypoint": "backend/index.py",
+      "routePrefix": "/api",
+      "framework": "fastapi",
+      "memory": 2048,
+      "maxDuration": 300,
+      "includeFiles": [
+        "backend/risk_labels.json",
+        "backend/risk_model.keras",
+        "backend/risk_rules.yaml"
+      ],
+      "excludeFiles": [
+        "backend/.venv/**",
+        "backend/uploads/**",
+        "backend/**/__pycache__/**",
+        "backend/**/*.pyc",
+        "backend/*.log"
+      ]
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/qa",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/risks",
+      "destination": "/index.html"
+    }
+  ]
+}

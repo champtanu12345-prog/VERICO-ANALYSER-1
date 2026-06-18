@@ -48,6 +48,16 @@ TensorFlow text classification.
 2. Install dependencies: `npm install`
 3. Start the Vite server: `npm run dev`
 
+### Vercel Services
+
+The root `vercel.json` defines the Vite frontend at `/` and the FastAPI backend
+at `/api`. In Vercel project settings, select the **Services** framework.
+
+Vercel's Python functions have a 500 MB uncompressed bundle limit. The current
+TensorFlow and PyTorch dependencies can exceed that limit, so production
+deployment may require hosting the backend on a container platform and setting
+`VITE_API_URL` to that backend URL.
+
 ## API Endpoints
 
 - `POST /upload`: Upload one or more PDF documents.
