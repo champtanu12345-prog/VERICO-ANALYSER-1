@@ -1,7 +1,10 @@
 import json
 import os
 
+import numpy as np
 import tensorflow as tf
+
+from app.services.text_features import FEATURE_DIM, texts_to_features
 
 
 LABELS = ["High Risk", "Low Risk", "Medium Risk"]
@@ -51,27 +54,18 @@ def train_model():
     ]
 
     texts = [text for text, _ in samples]
-    label_ids = [LABELS.index(label) for _, label in samples]
-    text_tensor = tf.constant(texts)
-    label_tensor = tf.constant(label_ids)
-
-    vectorizer = tf.keras.layers.TextVectorization(
-        max_tokens=2_000,
-        output_mode="int",
-        output_sequence_length=40,
-        name="text_vectorization",
+    features_array = texts_to_features(texts)
+    label_ids = np.asarray(
+        [LABELS.index(label) for _, label in samples],
+        dtype=np.int32,
     )
-    vectorizer.adapt(text_tensor)
 
-    text_input = tf.keras.Input(shape=(), dtype=tf.string, name="text")
-    features = vectorizer(text_input)
-    features = tf.keras.layers.Embedding(
-        input_dim=2_000,
-        output_dim=32,
-        mask_zero=True,
-        name="embedding",
-    )(features)
-    features = tf.keras.layers.GlobalAveragePooling1D()(features)
+    feature_input = tf.keras.Input(
+        shape=(FEATURE_DIM,),
+        dtype=tf.float32,
+        name="text_features",
+    )
+    features = tf.keras.layers.Dense(64, activation="relu")(feature_input)
     features = tf.keras.layers.Dense(32, activation="relu")(features)
     features = tf.keras.layers.Dropout(0.2)(features)
     output = tf.keras.layers.Dense(
@@ -80,24 +74,43 @@ def train_model():
         name="risk_probabilities",
     )(features)
 
-    model = tf.keras.Model(text_input, output, name="contract_risk_classifier")
+    model = tf.keras.Model(
+        feature_input,
+        output,
+        name="contract_risk_classifier",
+    )
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=0.005),
         loss="sparse_categorical_crossentropy",
         metrics=["accuracy"],
     )
-    model.fit(text_tensor, label_tensor, epochs=80, batch_size=8, verbose=0)
+    model.fit(
+        features_array,
+        label_ids,
+        epochs=120,
+        batch_size=8,
+        verbose=0,
+    )
 
     backend_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(backend_dir, "risk_model.keras")
+    keras_model_path = os.path.join(backend_dir, "risk_model.keras")
+    lite_model_path = os.path.join(backend_dir, "risk_model.tflite")
     labels_path = os.path.join(backend_dir, "risk_labels.json")
 
-    model.save(model_path)
+    model.save(keras_model_path)
+
+    converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    converter.optimizations = [tf.lite.Optimize.DEFAULT]
+    lite_model = converter.convert()
+    with open(lite_model_path, "wb") as model_file:
+        model_file.write(lite_model)
+
     with open(labels_path, "w", encoding="utf-8") as label_file:
         json.dump(LABELS, label_file, indent=2)
 
-    _, accuracy = model.evaluate(text_tensor, label_tensor, verbose=0)
-    print(f"Model saved to {model_path}")
+    _, accuracy = model.evaluate(features_array, label_ids, verbose=0)
+    print(f"Keras model saved to {keras_model_path}")
+    print(f"LiteRT model saved to {lite_model_path}")
     print(f"Training accuracy: {accuracy:.2%}")
 
 if __name__ == "__main__":

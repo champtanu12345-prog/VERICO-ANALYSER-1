@@ -3,12 +3,6 @@ uvicorn
 pydantic
 python-multipart
 pymupdf
-sentence-transformers
-transformers
-faiss-cpu
-tensorflow-cpu==2.21.0
+ai-edge-litert==2.1.5
 pyyaml
-sqlalchemy
-pytest
-httpx
 numpy

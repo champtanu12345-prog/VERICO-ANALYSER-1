@@ -1,29 +1,48 @@
 import json
 import logging
 import os
+import threading
 from typing import List, Dict, Any
 
-os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
-
-import tensorflow as tf
+import numpy as np
 import yaml
 
+from app.services.text_features import text_to_features
+
 logger = logging.getLogger(__name__)
+
+
+def _load_interpreter(model_path: str):
+    try:
+        from ai_edge_litert.interpreter import Interpreter
+    except ImportError:
+        os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+        import tensorflow as tf
+
+        Interpreter = tf.lite.Interpreter
+
+    return Interpreter(model_path=model_path)
 
 
 class RiskDetector:
     def __init__(
         self,
         rules_path="risk_rules.yaml",
-        model_path="risk_model.keras",
+        model_path="risk_model.tflite",
         labels_path="risk_labels.json",
     ):
         self.rules = self._load_rules(rules_path)
-        self.model = None
+        self.interpreter = None
+        self.input_details = None
+        self.output_details = None
         self.labels = []
+        self._interpreter_lock = threading.Lock()
         
         if os.path.exists(model_path) and os.path.exists(labels_path):
-            self.model = tf.keras.models.load_model(model_path, compile=False)
+            self.interpreter = _load_interpreter(model_path)
+            self.interpreter.allocate_tensors()
+            self.input_details = self.interpreter.get_input_details()[0]
+            self.output_details = self.interpreter.get_output_details()[0]
             with open(labels_path, "r", encoding="utf-8") as label_file:
                 self.labels = json.load(label_file)
         else:
@@ -62,12 +81,18 @@ class RiskDetector:
                         break # Prevent multiple triggers for same rule on same chunk
                         
             # 2. TensorFlow-based detection (if the model is loaded)
-            if self.model is not None and self.labels:
-                probabilities = self.model(
-                    tf.constant([chunk["text"]]),
-                    training=False,
-                )[0]
-                prediction = self.labels[int(tf.argmax(probabilities).numpy())]
+            if self.interpreter is not None and self.labels:
+                features = text_to_features(chunk["text"]).reshape(1, -1)
+                with self._interpreter_lock:
+                    self.interpreter.set_tensor(
+                        self.input_details["index"],
+                        features.astype(np.float32),
+                    )
+                    self.interpreter.invoke()
+                    probabilities = self.interpreter.get_tensor(
+                        self.output_details["index"]
+                    )[0]
+                prediction = self.labels[int(np.argmax(probabilities))]
                 if prediction != "Low Risk":
                     detected_risks.append({
                         "risk_type": "ml_detected_risk",
@@ -75,7 +100,7 @@ class RiskDetector:
                         "page": chunk["page"],
                         "source": chunk["source"],
                         "text": chunk["text"],
-                        "method": "tensorflow"
+                        "method": "tensorflow-lite"
                     })
                     
         return detected_risks

@@ -1,60 +1,57 @@
-import faiss
-import numpy as np
 import os
 import pickle
 from typing import List, Dict, Any, Tuple
-from sentence_transformers import SentenceTransformer
+
+import numpy as np
+
+from app.services.text_features import FEATURE_DIM, text_to_features, texts_to_features
 
 class VectorStore:
-    def __init__(self, index_path="faiss_index.bin", meta_path="faiss_meta.pkl", model_name="all-MiniLM-L6-v2"):
+    def __init__(self, index_path="search_index.npy", meta_path="search_meta.pkl"):
         self.index_path = index_path
         self.meta_path = meta_path
-        self.model = SentenceTransformer(model_name)
-        self.dimension = self.model.get_sentence_embedding_dimension()
         
-        # Load or initialize index
         if os.path.exists(self.index_path) and os.path.exists(self.meta_path):
-            self.index = faiss.read_index(self.index_path)
+            self.index = np.load(self.index_path)
             with open(self.meta_path, "rb") as f:
                 self.metadata = pickle.load(f)
         else:
-            self.index = faiss.IndexFlatL2(self.dimension)
-            self.metadata = [] # List to map FAISS ids to chunk dicts
+            self.index = np.empty((0, FEATURE_DIM), dtype=np.float32)
+            self.metadata = []
 
     def add_documents(self, chunks: List[Dict[str, Any]]):
         if not chunks:
             return
             
         texts = [chunk["text"] for chunk in chunks]
-        embeddings = self.model.encode(texts, convert_to_numpy=True)
+        embeddings = texts_to_features(texts)
         
-        self.index.add(embeddings)
+        self.index = np.vstack([self.index, embeddings])
         self.metadata.extend(chunks)
         self._save()
 
     def search(self, query: str, top_k: int = 5) -> List[Tuple[Dict[str, Any], float]]:
-        if self.index.ntotal == 0:
+        if len(self.metadata) == 0:
             return []
             
-        query_embedding = self.model.encode([query], convert_to_numpy=True)
-        distances, indices = self.index.search(query_embedding, top_k)
+        query_embedding = text_to_features(query)
+        scores = self.index @ query_embedding
+        indices = np.argsort(scores)[::-1][:top_k]
         
         results = []
-        for i, idx in enumerate(indices[0]):
-            if idx != -1 and idx < len(self.metadata):
-                # Convert L2 distance to a dummy relevance score (lower distance = higher score)
-                score = 1.0 / (1.0 + distances[0][i])
-                results.append((self.metadata[idx], float(score)))
+        for idx in indices:
+            if idx < len(self.metadata) and scores[idx] > 0:
+                results.append((self.metadata[idx], float(scores[idx])))
                 
         return results
 
     def _save(self):
-        faiss.write_index(self.index, self.index_path)
+        np.save(self.index_path, self.index)
         with open(self.meta_path, "wb") as f:
             pickle.dump(self.metadata, f)
 
     def clear(self):
-        self.index = faiss.IndexFlatL2(self.dimension)
+        self.index = np.empty((0, FEATURE_DIM), dtype=np.float32)
         self.metadata = []
         if os.path.exists(self.index_path):
             os.remove(self.index_path)

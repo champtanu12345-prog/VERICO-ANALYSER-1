@@ -14,7 +14,7 @@
       "maxDuration": 300,
       "includeFiles": [
         "backend/risk_labels.json",
-        "backend/risk_model.keras",
+        "backend/risk_model.tflite",
         "backend/risk_rules.yaml"
       ],
       "excludeFiles": [

@@ -7,9 +7,9 @@ TensorFlow text classification.
 ## Features
 
 - **Intelligent Chunking**: Recursive and overlapping text chunking for optimal context retrieval.
-- **Semantic Search**: FAISS vector database powered by `all-MiniLM-L6-v2` embeddings.
-- **Question Answering**: DistilBERT model for answer extraction from documents.
-- **Risk Detection**: Dual-engine detection using YAML rules and a TensorFlow/Keras classifier.
+- **Document Search**: Lightweight hashed text features and cosine similarity.
+- **Question Answering**: Retrieves the most relevant document passage with citations.
+- **Risk Detection**: YAML rules plus a TensorFlow-trained LiteRT classifier.
 - **Modern Dashboard**: React frontend with Tailwind CSS and Recharts.
 
 ## Setup Instructions
@@ -38,8 +38,8 @@ TensorFlow text classification.
 1. Navigate to the `backend` directory.
 2. Create a virtual environment: `python -m venv .venv`
 3. Activate the virtual environment.
-4. Install dependencies: `pip install -r requirements.txt`
-5. Train the TensorFlow risk model: `python train_risk_model.py`
+4. Install runtime dependencies: `pip install -r requirements.txt`
+5. To retrain the model, install `requirements-train.txt` and run `python train_risk_model.py`
 6. Start the API: `uvicorn app.main:app --reload`
 
 #### Frontend
@@ -53,10 +53,9 @@ TensorFlow text classification.
 The root `vercel.json` defines the Vite frontend at `/` and the FastAPI backend
 at `/api`. In Vercel project settings, select the **Services** framework.
 
-Vercel's Python functions have a 500 MB uncompressed bundle limit. The current
-TensorFlow and PyTorch dependencies can exceed that limit, so production
-deployment may require hosting the backend on a container platform and setting
-`VITE_API_URL` to that backend URL.
+The deployed backend uses the compact LiteRT runtime and a `.tflite` model.
+Full TensorFlow is only required when retraining the classifier and is excluded
+from the Vercel runtime bundle.
 
 ## API Endpoints
 

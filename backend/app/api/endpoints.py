@@ -26,14 +26,14 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Global instances (simplified for this assignment, in production use dependency injection)
 vector_store = VectorStore(
-    index_path=str(RUNTIME_DIR / "faiss_index.bin"),
-    meta_path=str(RUNTIME_DIR / "faiss_meta.pkl"),
+    index_path=str(RUNTIME_DIR / "search_index.npy"),
+    meta_path=str(RUNTIME_DIR / "search_meta.pkl"),
 )
 chunker = Chunker()
 qa_engine = QAEngine(use_qa_model=False)
 risk_detector = RiskDetector(
     rules_path=str(BASE_DIR / "risk_rules.yaml"),
-    model_path=str(BASE_DIR / "risk_model.keras"),
+    model_path=str(BASE_DIR / "risk_model.tflite"),
     labels_path=str(BASE_DIR / "risk_labels.json"),
 )
 
