@@ -14,8 +14,8 @@ dist-ssr/
 *.log
 .env
 .env.*
-uploads/*
-!uploads/.gitkeep
+uploads/
+backend/uploads/
 faiss_index.bin
 faiss_meta.pkl
 

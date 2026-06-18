@@ -6,10 +6,9 @@ pymupdf
 sentence-transformers
 transformers
 faiss-cpu
-scikit-learn
+tensorflow-cpu==2.21.0
 pyyaml
 sqlalchemy
 pytest
 httpx
 numpy
-pandas

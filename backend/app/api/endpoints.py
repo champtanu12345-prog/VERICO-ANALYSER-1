@@ -20,7 +20,11 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 vector_store = VectorStore(index_path="faiss_index.bin", meta_path="faiss_meta.pkl")
 chunker = Chunker()
 qa_engine = QAEngine(use_qa_model=False)
-risk_detector = RiskDetector(rules_path="risk_rules.yaml", model_path="risk_model.pkl", vectorizer_path="risk_vectorizer.pkl")
+risk_detector = RiskDetector(
+    rules_path="risk_rules.yaml",
+    model_path="risk_model.keras",
+    labels_path="risk_labels.json",
+)
 
 # In-memory storage for simplicity (use DB in production)
 documents_db = []
