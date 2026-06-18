@@ -1,0 +1,26 @@
+# Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Node dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+
+# Local runtime files
+*.log
+.env
+.env.*
+uploads/*
+!uploads/.gitkeep
+faiss_index.bin
+faiss_meta.pkl
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

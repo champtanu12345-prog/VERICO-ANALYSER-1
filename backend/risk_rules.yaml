@@ -1,0 +1,34 @@
+unlimited_liability:
+  severity: high
+  keywords:
+    - unlimited liability
+    - all damages
+    - no cap on liability
+
+auto_renewal:
+  severity: medium
+  keywords:
+    - automatically renew
+    - auto renewal
+    - renews automatically
+
+no_audit_rights:
+  severity: high
+  keywords:
+    - no audit rights
+    - audit prohibited
+    - without right to audit
+
+termination_clause:
+  severity: medium
+  keywords:
+    - immediate termination
+    - terminate without cause
+    - right to terminate
+
+data_sharing:
+  severity: high
+  keywords:
+    - sell data
+    - share data with third parties
+    - third party access

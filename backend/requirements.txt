@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+pydantic
+python-multipart
+pymupdf
+sentence-transformers
+transformers
+faiss-cpu
+scikit-learn
+pyyaml
+sqlalchemy
+pytest
+httpx
+numpy
+pandas
