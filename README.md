@@ -57,6 +57,10 @@ The deployed backend uses the compact LiteRT runtime and a `.tflite` model.
 Full TensorFlow is only required when retraining the classifier and is excluded
 from the Vercel runtime bundle.
 
+After changing backend dependencies, create a new deployment from the latest
+Git commit rather than redeploying an older failed deployment. The lightweight
+service is named `api-lite` in Vercel build logs.
+
 ## API Endpoints
 
 - `POST /upload`: Upload one or more PDF documents.

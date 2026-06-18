@@ -6,7 +6,7 @@
       "routePrefix": "/",
       "framework": "vite"
     },
-    "backend": {
+    "api-lite": {
       "entrypoint": "backend/index.py",
       "routePrefix": "/api",
       "framework": "fastapi",
@@ -18,11 +18,22 @@
         "backend/risk_rules.yaml"
       ],
       "excludeFiles": [
+        ".venv/**",
+        "uploads/**",
+        "**/__pycache__/**",
+        "**/*.pyc",
+        "*.log",
+        "requirements-train.txt",
+        "train_risk_model.py",
+        "risk_model.keras",
         "backend/.venv/**",
         "backend/uploads/**",
         "backend/**/__pycache__/**",
         "backend/**/*.pyc",
-        "backend/*.log"
+        "backend/*.log",
+        "backend/requirements-train.txt",
+        "backend/train_risk_model.py",
+        "backend/risk_model.keras"
       ]
     }
   },
