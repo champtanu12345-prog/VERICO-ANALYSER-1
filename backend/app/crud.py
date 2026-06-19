@@ -59,7 +59,7 @@ def create_qa_interaction(db: Session, qa: schemas.QAInteractionCreate):
         question=qa.question,
         answer=qa.answer,
         confidence=qa.confidence,
-        metadata=qa.metadata
+        context_data=qa.context_data
     )
     db.add(db_qa)
     db.commit()

@@ -45,7 +45,7 @@ class QAInteraction(Base):
     answer = Column(Text, nullable=False)
     confidence = Column(Float, nullable=True)  # 0.0 to 1.0
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    metadata = Column(JSON, nullable=True)  # Store additional context
+    context_data = Column(JSON, nullable=True)  # Store additional context
 
     # Relationships
     document = relationship("Document", back_populates="qa_interactions")

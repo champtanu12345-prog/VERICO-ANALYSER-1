@@ -47,7 +47,7 @@ class QAInteractionBase(BaseModel):
     question: str
     answer: str
     confidence: Optional[float] = None
-    metadata: Optional[Dict[str, Any]] = None
+    context_data: Optional[Dict[str, Any]] = None
 
 
 class QAInteractionCreate(QAInteractionBase):
