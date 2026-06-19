@@ -6,3 +6,4 @@ pymupdf
 ai-edge-litert==2.1.5
 pyyaml
 numpy
+openai

@@ -16,6 +16,7 @@ dist-ssr/
 *.log
 .env
 .env.*
+!.env.example
 uploads/
 backend/uploads/
 faiss_index.bin

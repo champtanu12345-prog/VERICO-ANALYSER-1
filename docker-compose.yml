@@ -10,7 +10,9 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      - USE_QA_MODEL=true
+      - USE_QA_MODEL=${USE_QA_MODEL:-true}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-5.4-mini}
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:

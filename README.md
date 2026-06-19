@@ -8,7 +8,7 @@ TensorFlow text classification.
 
 - **Intelligent Chunking**: Recursive and overlapping text chunking for optimal context retrieval.
 - **Document Search**: Lightweight hashed text features and cosine similarity.
-- **Question Answering**: Retrieves the most relevant document passage with citations.
+- **LLM Question Answering**: Uses OpenAI to answer from retrieved document passages with citations.
 - **Risk Detection**: YAML rules plus a TensorFlow-trained LiteRT classifier.
 - **Modern Dashboard**: React frontend with Tailwind CSS and Recharts.
 
@@ -39,8 +39,17 @@ TensorFlow text classification.
 2. Create a virtual environment: `python -m venv .venv`
 3. Activate the virtual environment.
 4. Install runtime dependencies: `pip install -r requirements.txt`
-5. To retrain the model, install `requirements-train.txt` and run `python train_risk_model.py`
-6. Start the API: `uvicorn app.main:app --reload`
+5. Set `OPENAI_API_KEY` in your environment. Optionally set `OPENAI_MODEL`
+   (defaults to `gpt-5.4-mini`) and `USE_QA_MODEL` (defaults to `true`).
+6. To retrain the risk model, install `requirements-train.txt` and run `python train_risk_model.py`
+7. Start the API: `uvicorn app.main:app --reload`
+
+For Docker Compose, copy `.env.example` to `.env`, add your API key, and run
+`docker-compose up --build`. For Vercel, configure `OPENAI_API_KEY` as a project
+environment variable. Never expose the API key in the frontend.
+
+If the key is absent or the API request fails, question answering safely falls
+back to returning the most relevant retrieved passage.
 
 #### Frontend
 

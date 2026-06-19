@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks
 from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 from typing import List, Optional
 import os
 import uuid
@@ -30,7 +31,7 @@ vector_store = VectorStore(
     meta_path=str(RUNTIME_DIR / "search_meta.pkl"),
 )
 chunker = Chunker()
-qa_engine = QAEngine(use_qa_model=False)
+qa_engine = QAEngine()
 risk_detector = RiskDetector(
     rules_path=str(BASE_DIR / "risk_rules.yaml"),
     model_path=str(BASE_DIR / "risk_model.tflite"),
@@ -122,7 +123,11 @@ async def ask_question(request: AskRequest):
     if not top_chunks:
         return AnswerResponse(answer="No relevant information found in documents.", confidence=0.0, citations=[])
         
-    result = qa_engine.get_answer(request.question, top_chunks)
+    result = await run_in_threadpool(
+        qa_engine.get_answer,
+        request.question,
+        top_chunks,
+    )
     
     citations = [Citation(**cit) for cit in result["citations"]]
     return AnswerResponse(answer=result["answer"], confidence=result["confidence"], citations=citations)
