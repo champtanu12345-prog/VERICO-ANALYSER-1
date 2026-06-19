@@ -11,6 +11,11 @@
   --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
 }
 
+:root {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
 body {
   background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e3a8a 100%);
   color: #f8fafc;
@@ -18,6 +23,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+}
+
+.interactive-bg {
+  background: 
+    radial-gradient(600px at var(--mouse-x) var(--mouse-y), rgba(59, 130, 246, 0.15), transparent 80%),
+    linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e3a8a 100%);
+  transition: background 0.1s ease-out;
 }
 
 @keyframes fade-in-up {
