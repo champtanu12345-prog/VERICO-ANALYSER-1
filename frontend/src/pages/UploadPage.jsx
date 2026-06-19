@@ -6,15 +6,18 @@ const UploadPage = () => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [results, setResults] = useState([]);
+  const [error, setError] = useState(null);
 
   const handleFileChange = (e) => {
     setFiles(Array.from(e.target.files));
+    setError(null);
   };
 
   const handleUpload = async () => {
     if (files.length === 0) return;
     
     setUploading(true);
+    setError(null);
     const formData = new FormData();
     files.forEach(file => {
       formData.append('files', file);
@@ -27,9 +30,11 @@ const UploadPage = () => {
         },
       });
       setResults(response.data);
+      setFiles([]);
     } catch (error) {
-      console.error('Upload failed', error);
-      alert('Upload failed. Please try again.');
+      console.error('Upload failed:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Upload failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setUploading(false);
     }
@@ -68,6 +73,16 @@ const UploadPage = () => {
               <span className="text-sm text-gray-500 mt-2">Maximum file size 50MB</span>
             </div>
           </div>
+
+          {error && (
+            <div className="mt-6 p-4 bg-red-500/20 border border-red-500/50 rounded-xl flex items-start animate-fade-in-up">
+              <AlertCircle className="text-red-400 mr-3 mt-0.5 flex-shrink-0" size={20} />
+              <div>
+                <h4 className="text-red-300 font-semibold">Upload Error</h4>
+                <p className="text-red-200/80 text-sm mt-1">{error}</p>
+              </div>
+            </div>
+          )}
 
           {files.length > 0 && (
             <div className="mt-10 animate-fade-in-up">
